@@ -2,13 +2,17 @@ import csv as tsv
 import string;
 
 ###############################################################################
-## This method reads a GTF file and returns a structured object.              #
-##
+## This method reads a GTF file and returns two structured object, one for   ##
+## the exons and one for the CDS.                                            ##
+## The exons object is a list where each item is an array with the following ##
+## structure: begin_position, end_position, strand (+/-), transcript_id.     ##
+## The CDS object is structured as follow:                                   ##
+## begin_position, end_position, strand (+/-), transcript_id.                ##
 ###############################################################################
 def GTFParsing(gtfFile) :
 
 	#Exons containter
-	exons = [];#5
+	exons = [];#4
 	cds = []; #7
 
 	#Opens the GTF file
@@ -16,16 +20,34 @@ def GTFParsing(gtfFile) :
 		for line in csv.reader(gtf, delimiter = '\t'):
 			if line[2] == 'exon':
 				#New exon data
-				exon = [''] * 5;
+				exon = [''] * 4;
+				#Exon begin
 				exon[0] = int(line[3]);
+				#Exon end
 				exon[1] = int(line[4]);
+				#Strand (+/-)
 				exon[2] = line[6];
+				#Transcript Id
 				transcriptId = line[8].split(';')[0];
 				exon[3] = transcriptId[transcriptId.find('"') + 1 : len(transcriptId) - 1];
+				#Adds the exons to the list
 				exons = exons + [exon];
 			elif line[2] == 'CDS':
-				print 'Ciao';
+				#New CDS data
+				singleCDS = [''] * 4;
+				#CDS begin
+				singleCDS[0] = int(line[3]);
+				#CDS end
+				singleCDS[1] =  int(line[4]);
+				#Strand
+				singleCDS[2] = line[6];
+				annotations = line[8].split(';');
+				#Transcript Id
+				transcriptId = annotations[0];
+				singleCDS[3] = transcriptId[transcriptId.find('"') + 1 : len(transcriptId) - 1];
+				#Adds the CDS to the collection
+				cds = cds + [singleCDS];
 
-	return exons;
+	return exons, cds;
 				
 

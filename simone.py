@@ -1,14 +1,15 @@
-#temporanea simone
+#Paroni Pellegrini Previtali
 
+#import fasta file (returns single string)
 def getFasta(path):
     filefasta = open(path, 'r')
     lines = filefasta.readlines()
     filefasta.close()
     #trim first line
-    fastatemp = lines[1:len(lines)]
-    fasta = ''
+    fasta = lines[1:len(lines)]
     #remove \n
-    for i in range(len(fastatemp)):
-        fastatemp[i] = fastatemp[i].replace('\n', '')
-        fasta = fasta + fastatemp[i]
-    return fasta
+    for i in range(len(fasta)):
+        fasta[i] = fasta[i].replace('\n', '')
+    #characters per line
+    cpl = len(fasta[1])
+    return fasta, cpl
