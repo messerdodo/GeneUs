@@ -10,11 +10,13 @@ def getFasta(path):
     #remove \n
     for i in range(len(fasta)):
         fasta[i] = fasta[i].replace('\n', '')
-    return fasta
+    #characters per line
+    cpl = len(fasta[1])
+    return fasta, cpl
 
 def demo():
-    fasta = getFasta('ENm006.fa')
-    print fasta
+    fasta, cpl = getFasta('ENm006.fa')
+    print fasta, cpl
 
 if __name__ == '__main__':
     demo()
