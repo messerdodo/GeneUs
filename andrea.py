@@ -1,3 +1,5 @@
+#Paroni Pellegrini Previtali
+
 import csv as tsv
 import string;
 
@@ -10,14 +12,14 @@ import string;
 ## begin_position, end_position, strand (+/-), transcript_id.                ##
 ###############################################################################
 def GTFParsing(gtfFile) :
-
+    
 	#Exons containter
 	exons = [];#4
 	cds = []; #7
-
+    
 	#Opens the GTF file
 	with open(gtfFile) as gtf:
-		for line in csv.reader(gtf, delimiter = '\t'):
+		for line in tsv.reader(gtf, delimiter = '\t'):
 			if line[2] == 'exon':
 				#New exon data
 				exon = [''] * 4;
@@ -47,7 +49,51 @@ def GTFParsing(gtfFile) :
 				singleCDS[3] = transcriptId[transcriptId.find('"') + 1 : len(transcriptId) - 1];
 				#Adds the CDS to the collection
 				cds = cds + [singleCDS];
-
+    
 	return exons, cds;
-				
 
+
+
+#import fasta file (returns single string)
+def getFasta(path):
+    filefasta = open(path, 'r')
+    lines = filefasta.readlines()
+    filefasta.close()
+    #trim first line
+    fasta = lines[1:len(lines)]
+    #remove \n
+    for i in range(len(fasta)):
+        fasta[i] = fasta[i].replace('\n', '')
+    #characters per line
+    cpl = len(fasta[1])
+    return fasta, cpl
+
+def complements(base):
+	if base.upper() == 'A':
+		return 'T';
+	elif base.upper() == 'T':
+		return 'A';
+	elif base.upper() == 'C':
+		return 'G';
+	else:
+		return 'C';
+
+def reverseAndComplement(sequence):
+	newSequence = '';
+	lenght = len(sequence);
+	for i in range(lenght):
+		newSequence[i] = complement(sequence[lenght - 1 - i]);
+	return newSequence;
+
+
+
+def demo():
+    fasta, cpl = getFasta('ENm006.fa')
+    exons, cds = GTFParsing('GAB3_annot.gtf');
+    print exons;
+    print cds;
+    print fasta, cpl
+    print reverseAndComplement(fasta[0]);
+
+if __name__ == '__main__':
+    demo()
