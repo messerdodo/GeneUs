@@ -12,11 +12,11 @@ import string;
 ## begin_position, end_position, strand (+/-), transcript_id.                ##
 ###############################################################################
 def GTFParsing(gtfFile) :
-    
+
 	#Exons containter
 	exons = [];#4
 	cds = []; #7
-    
+
 	#Opens the GTF file
 	with open(gtfFile) as gtf:
 		for line in tsv.reader(gtf, delimiter = '\t'):
@@ -49,7 +49,7 @@ def GTFParsing(gtfFile) :
 				singleCDS[3] = transcriptId[transcriptId.find('"') + 1 : len(transcriptId) - 1];
 				#Adds the CDS to the collection
 				cds = cds + [singleCDS];
-    
+
 	return exons, cds;
 
 
