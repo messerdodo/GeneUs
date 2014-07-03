@@ -69,8 +69,7 @@ def getFasta(path):
     cpl = len(fasta[1])
     return fasta, cpl
 
-<<<<<<< HEAD
-#returns a substring of the fasta
+#returns a substring of fasta
 #fasta is used as a matrix (rows, character position)
 #unique characters-per-line value is supposed
 def getFastaString(begin, end, fasta, cpl):
@@ -90,7 +89,8 @@ def getFastaString(begin, end, fasta, cpl):
     for i in range(0,len(temp)):
         fastastring = fastastring + temp[i]
     return fastastring
-=======
+
+
 ###############################################################################
 ## This method returns the complements of the passed nucleic acid.           ##
 ###############################################################################
@@ -114,23 +114,16 @@ def reverseAndComplement(sequence):
 		#Reverts and complements
 		newSequence = newSequence + complements(sequence[lenght - 1 - i]);
 	return newSequence;
->>>>>>> origin/master
 
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
     exons, cds = GTFParsing('GAB3_annot.gtf');
-<<<<<<< HEAD
     print 'exons:\n', exons;
     print 'cds:\n', cds;
     print 'fasta:\n', fasta, '\ncpl:\n', cpl
     fastastring = getFastaString(1650, 2040, fasta, cpl)
     print 'fastastring:\n', fastastring
+    print 'reverse and complement of fastastring:\n', reverseAndComplement(fastastring);
 
-=======
-    print exons;
-    print cds;
-    print fasta, cpl
-    print reverseAndComplement(fasta[0]);
->>>>>>> origin/master
 if __name__ == '__main__':
     demo()
