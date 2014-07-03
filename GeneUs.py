@@ -68,12 +68,36 @@ def getFasta(path):
     cpl = len(fasta[1])
     return fasta, cpl
 
+###############################################################################
+## This method returns the complements of the passed nucleic acid.           ##
+###############################################################################
+def complements(base):
+	if base.upper() == 'A':
+		return 'T';
+	elif base.upper() == 'T':
+		return 'A';
+	elif base.upper() == 'C':
+		return 'G';
+	else:
+		return 'C';
+
+###############################################################################
+## This method returns the passed sequence reverted and complemented.        ##
+###############################################################################
+def reverseAndComplement(sequence):
+	newSequence = '';
+	lenght = len(sequence);
+	for i in range(lenght):
+		#Reverts and complements
+		newSequence = newSequence + complements(sequence[lenght - 1 - i]);
+	return newSequence;
+
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
     exons, cds = GTFParsing('GAB3_annot.gtf');
     print exons;
     print cds;
     print fasta, cpl
-
+    print reverseAndComplement(fasta[0]);
 if __name__ == '__main__':
     demo()

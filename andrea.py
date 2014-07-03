@@ -68,6 +68,9 @@ def getFasta(path):
     cpl = len(fasta[1])
     return fasta, cpl
 
+###############################################################################
+## This method returns the complements of the passed nucleic acid.           ##
+###############################################################################
 def complements(base):
 	if base.upper() == 'A':
 		return 'T';
@@ -78,10 +81,14 @@ def complements(base):
 	else:
 		return 'C';
 
+###############################################################################
+## This method returns the passed sequence reverted and complemented.        ##
+###############################################################################
 def reverseAndComplement(sequence):
 	newSequence = '';
 	lenght = len(sequence);
 	for i in range(lenght):
+		#Reverts and complements
 		newSequence[i] = complement(sequence[lenght - 1 - i]);
 	return newSequence;
 
