@@ -115,6 +115,22 @@ def reverseAndComplement(sequence):
 		newSequence = newSequence + complements(sequence[lenght - 1 - i]);
 	return newSequence;
 
+##############################################################################
+# This method sorts the given annotation list by the begin value.            #
+##############################################################################
+def sortByBegin():
+	
+##############################################################################
+# This method returns the introns list, given the exons annotiations.        #
+##############################################################################
+def getIntrons(exons):
+	introns = [];
+
+	for exon in len(exons):
+
+
+	return introns;
+
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
     exons, cds = GTFParsing('GAB3_annot.gtf');
@@ -124,6 +140,7 @@ def demo():
     fastastring = getFastaString(1650, 2040, fasta, cpl)
     print 'fastastring:\n', fastastring
     print 'reverse and complement of fastastring:\n', reverseAndComplement(fastastring);
+
 
 if __name__ == '__main__':
     demo()
