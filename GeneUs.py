@@ -127,11 +127,38 @@ def sortByBegin(couples):
 ##############################################################################
 # This method returns the introns list, given the exons annotiations.        #
 ##############################################################################
-def getIntrons(exons):
+##############################################################################
+# This method returns the introns list, given the exons annotiations.        #
+##############################################################################
+def getIntrons(exons, fasta, cpl):
 	introns = [];
-
-	for exon in len(exons):
-
+	#Sorts the exons by the begin attribute.
+	exons = sortByBegin(exons);
+	#Checks if the gene is encoded in the watson or crick strand
+	crickStrand = exons[0][2] == '-';
+	#Obtains the not overlapped exons
+	preprocessedExons = [[exons[0][0], exons[0][1]]];
+	j = 0;
+	for i in range(1, len(exons)):
+		#The begin of the i-th exon is before the end of the previous exon (overlapping)
+		if exons[i][0] <= preprocessedExons[j][1]:
+			preprocessedExons[j][1] = max(preprocessedExons[j][1], exons[i][0]);
+		else:
+			#No overlapping
+			preprocessedExons = preprocessedExons + [[exons[i][0], exons[i][1]]];
+			j = j + 1;
+	
+	#Obtains all the introns (as gaps between the exons)
+	for i in range(len(preprocessedExons) - 1):
+		#Gets the intron begin and end.
+		intronBegin = preprocessedExons[i][1] + 1;
+		intronEnd = preprocessedExons[i + 1][0] - 1;
+		#Gets the corresponding intron pattern
+		intronPattern = getFastaString(intronBegin, intronEnd, fasta, cpl);
+		#If the gene is in the crick strand executes the reverse and complement task.
+		if crickStrand:
+			intronPattern = reverseAndComplement(intronPattern);
+		introns = introns + [[intronBegin, intronEnd, intronPattern]];
 
 	return introns;
 
@@ -145,6 +172,11 @@ def demo():
     print 'fastastring:\n', fastastring
     print 'reverse and complement of fastastring:\n', reverseAndComplement(fastastring);
     print sortByBegin(exons)
+    introns = getIntrons(exons, fasta, cpl);
+    print 'Introns:'
+    for intron in introns:
+    	print intron;
+
 
 if __name__ == '__main__':
     demo()
