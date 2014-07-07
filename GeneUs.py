@@ -1,7 +1,11 @@
-#Paroni Pellegrini Previtali
+#Paroni Andrea
+#Pellegrini Simone Maria
+#Previtali Giorgia
 
 import csv as tsv
 import string;
+import os
+import textwrap
 
 ###############################################################################
 ## This method reads a GTF file and returns two structured object, one for   ##
@@ -197,7 +201,7 @@ def getsExonsGrouppedByTranscriptId(exons):
 ###############################################################################
 ## This method returns a structures containing each transcript in a FASTA    ##
 ## format.                                                                   ##
-############################################################################### 
+###############################################################################
 def getTranscripts(exons, fasta, cpl):
 	transcriptsIds, grouppedExons, strands = getsExonsGrouppedByTranscriptId(exons);
 	i = 0;
@@ -210,18 +214,40 @@ def getTranscripts(exons, fasta, cpl):
 			#Reverse way.
 			exonsInTranscript = sortByBegin(exonsInTranscript, increasing = False);
 			#Gets the sequence for each exon and do the reverse and complement task
-			for exon in exonsInTranscript: 
+			for exon in exonsInTranscript:
 				transcript = transcript + reverseAndComplement(getFastaString(exon[0], exon[1], fasta, cpl));	
 		else: #Watson strand
 			#Standard way.
 			exonsInTranscript = sortByBegin(exonsInTranscript);
 			#Gets the sequence for each exon and produces the transcript sequence.
-			for exon in exonsInTranscript: 
+			for exon in exonsInTranscript:
 				transcript = transcript + getFastaString(exon[0], exon[1], fasta, cpl);
 		transcripts = transcripts + [transcript];
 		i = i + 1;
 	return transcriptsIds, transcripts;
 
+###############################################################################
+# This method writes as many FASTA file as variable @ids                      #
+# Each file is filled with @contents[i] and stored in a directory named after #
+#  @directory. The width of each line is limited by @cpl.                     #
+###############################################################################
+def fastaExport(ids, contents, cpl, directory = 'new directory'):
+    #checks weather the directory already exists or not
+    if not os.path.exists(directory):
+        #no directory, so creates it
+        os.makedirs(directory)
+    for i in range(0, len(ids)-1):
+        #for every id, creates a new FASTA file
+        current_id = ids[i]
+        file_name = directory + '/' + current_id + '.fa'
+        heading = '>' + current_id
+        with open(file_name, 'w') as fasta:
+            #writes head line of fasta
+            fasta.write(heading + '\n')
+            #wraps the text width
+            fasta.write(textwrap.fill(contents[i], width=cpl))
+    print 'saved files in directory \'', directory, '\'.'
+    return
 
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
@@ -244,6 +270,7 @@ def demo():
     for i in range(len(transcriptsIds)):
     	print 'Transcript: ' + transcriptsIds[i];
     	print transcripts[i];
+    fastaExport(transcriptsIds, transcripts, cpl, 'transcripts')
 
 if __name__ == '__main__':
     demo()
