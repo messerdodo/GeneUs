@@ -127,9 +127,6 @@ def sortByBegin(couples):
 ##############################################################################
 # This method returns the introns list, given the exons annotiations.        #
 ##############################################################################
-##############################################################################
-# This method returns the introns list, given the exons annotiations.        #
-##############################################################################
 def getIntrons(exons, fasta, cpl):
 	introns = [];
 	#Sorts the exons by the begin attribute.
@@ -161,6 +158,28 @@ def getIntrons(exons, fasta, cpl):
 		introns = introns + [[intronBegin, intronEnd, intronPattern]];
 
 	return introns;
+
+###############################################################################
+## This method returns a structure containing the trascripts id and their    ##
+## exons.                                                                    ##
+###############################################################################
+def getsExonsGrouppedByTranscriptId(exons):
+	transcriptIds = [];
+	grouppedExons = [];
+	#Analizes all the exons and classifies them by the transcript id
+	for exon in exons:
+		#The transcript is already seen
+		if exon[3] in transcriptIds:
+			group = transcriptIds.index(exon[3]);
+			grouppedExons[group] = grouppedExons[group] + [(exon[0], exon[1])];
+		else:
+			#New transcript id.
+			grouppedExons = grouppedExons + [[(exon[0], exon[1])]];
+			transcriptIds = transcriptIds + [exon[3]];
+
+	return transcriptIds, grouppedExons;
+
+	
 
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
