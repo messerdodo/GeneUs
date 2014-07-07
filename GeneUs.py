@@ -53,8 +53,11 @@ def GTFParsing(gtfFile) :
 	return exons, cds;
 
 
-
-#imports fasta file (returns single string)
+###############################################################################
+# This method returns an array of lines of a FASTA file                       #
+# Variable @cpl is the number of characters per line of the fasta file. It is #
+#  assumed that this value is unique for all the FASTA file                   #
+###############################################################################
 def getFasta(path):
     #opens file
     filefasta = open(path, 'r')
@@ -69,9 +72,12 @@ def getFasta(path):
     cpl = len(fasta[1])
     return fasta, cpl
 
-#returns a substring of fasta
-#fasta is used as a matrix (rows, character position)
-#unique characters-per-line value is supposed
+##############################################################################
+# This method returns a substring of FASTA                                   #
+# Variable @fasta is used as a matrix (lines, character offset)              #
+# Variable @cpl (characters per line) is the number of nucleic bases on a    #
+#  single line of FASTA file                                                 #
+##############################################################################
 def getFastaString(begin, end, fasta, cpl):
     fastastring = ''
     #character position in the row is determined by its offset
@@ -117,11 +123,18 @@ def reverseAndComplement(sequence):
 
 ##############################################################################
 # This method sorts the given annotation list by the begin value.            #
+# Variable @increasing is set to True (default value) if increasing sort     #
+#  is needed; it can be set to False if decreasing sort is needed.           #
 ##############################################################################
-def sortByBegin(couples):
+def sortByBegin(couples, increasing = True ):
 	#couples[0] contains begin position
 	#couples[1] contains end position
-        sorted_couples = sorted(couples, key=lambda couples: couples[0])
+	if increasing:
+	    #sorts couples in increasing order (default)
+            sorted_couples = sorted(couples, key=lambda couples: couples[0])
+	else:
+	    #sorts couples in decreasing order
+	    sorted_couples = sorted(couples, key=lambda couples: couples[0], reverse = True)
 	return sorted_couples
 	
 ##############################################################################
@@ -179,23 +192,23 @@ def getsExonsGrouppedByTranscriptId(exons):
 
 	return transcriptIds, grouppedExons;
 
-	
 
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
     exons, cds = GTFParsing('GAB3_annot.gtf');
     print 'exons:\n', exons;
     print 'cds:\n', cds;
-    print 'fasta:\n', fasta, '\ncpl:\n', cpl
-    fastastring = getFastaString(1650, 2040, fasta, cpl)
-    print 'fastastring:\n', fastastring
-    print 'reverse and complement of fastastring:\n', reverseAndComplement(fastastring);
-    print sortByBegin(exons)
+    #tests
+    #fastastring = getFastaString(1650, 2040, fasta, cpl)
+    #print fastastring
+    #rec_fastastring = reverseAndComplement(fastastring)
+    #print rec_fastastring
+    #print sortByBegin(exons)
+    #print sortByBegin(exons, False)
     introns = getIntrons(exons, fasta, cpl);
     print 'Introns:'
     for intron in introns:
     	print intron;
-
 
 if __name__ == '__main__':
     demo()
