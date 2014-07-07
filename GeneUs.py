@@ -179,6 +179,7 @@ def getIntrons(exons, fasta, cpl):
 def getsExonsGrouppedByTranscriptId(exons):
 	transcriptIds = [];
 	grouppedExons = [];
+	strands = [];
 	#Analizes all the exons and classifies them by the transcript id
 	for exon in exons:
 		#The transcript is already seen
@@ -189,8 +190,9 @@ def getsExonsGrouppedByTranscriptId(exons):
 			#New transcript id.
 			grouppedExons = grouppedExons + [[(exon[0], exon[1])]];
 			transcriptIds = transcriptIds + [exon[3]];
+			strands = strands + [exon[2]];
 
-	return transcriptIds, grouppedExons;
+	return transcriptIds, grouppedExons, strands;
 
 ###############################################################################
 ## This method returns a structures containing each transcript in a FASTA    ##
