@@ -147,15 +147,15 @@ def getIntrons(exons, fasta, cpl):
 	#Checks if the gene is encoded in the watson or crick strand
 	crickStrand = exons[0][2] == '-';
 	#Obtains the not overlapped exons
-	preprocessedExons = [[exons[0][0], exons[0][1]]];
+	preprocessedExons = [(exons[0][0], exons[0][1])];
 	j = 0;
 	for i in range(1, len(exons)):
 		#The begin of the i-th exon is before the end of the previous exon (overlapping)
 		if exons[i][0] <= preprocessedExons[j][1]:
-			preprocessedExons[j][1] = max(preprocessedExons[j][1], exons[i][0]);
+			preprocessedExons[j] = (preprocessedExons[j][0], max(preprocessedExons[j][1], exons[i][0]));
 		else:
 			#No overlapping
-			preprocessedExons = preprocessedExons + [[exons[i][0], exons[i][1]]];
+			preprocessedExons = preprocessedExons + [(exons[i][0], exons[i][1])];
 			j = j + 1;
 	
 	#Obtains all the introns (as gaps between the exons)
@@ -168,7 +168,7 @@ def getIntrons(exons, fasta, cpl):
 		#If the gene is in the crick strand executes the reverse and complement task.
 		if crickStrand:
 			intronPattern = reverseAndComplement(intronPattern);
-		introns = introns + [[intronBegin, intronEnd, intronPattern]];
+		introns = introns + [(intronBegin, intronEnd, intronPattern)];
 
 	return introns;
 
@@ -192,6 +192,34 @@ def getsExonsGrouppedByTranscriptId(exons):
 
 	return transcriptIds, grouppedExons;
 
+###############################################################################
+## This method returns a structures containing each transcript in a FASTA    ##
+## format.                                                                   ##
+############################################################################### 
+def getTranscripts(exons, fasta, cpl):
+	transcriptsIds, grouppedExons, strands = getsExonsGrouppedByTranscriptId(exons);
+	i = 0;
+	transcripts = [];
+	#Analizes each transcipt
+	for exonsInTranscript in grouppedExons:
+		transcript = '';
+		#Crick strand: A reverse and complement task is required
+		if strands[i] == '-':
+			#Reverse way.
+			exonsInTranscript = sortByBegin(exonsInTranscript, increasing = False);
+			#Gets the sequence for each exon and do the reverse and complement task
+			for exon in exonsInTranscript: 
+				transcript = transcript + reverseAndComplement(getFastaString(exon[0], exon[1], fasta, cpl));	
+		else: #Watson strand
+			#Standard way.
+			exonsInTranscript = sortByBegin(exonsInTranscript);
+			#Gets the sequence for each exon and produces the transcript sequence.
+			for exon in exonsInTranscript: 
+				transcript = transcript + getFastaString(exon[0], exon[1], fasta, cpl);
+		transcripts = transcripts + [transcript];
+		i = i + 1;
+	return transcriptsIds, transcripts;
+
 
 def demo():
     fasta, cpl = getFasta('ENm006.fa')
@@ -209,6 +237,11 @@ def demo():
     print 'Introns:'
     for intron in introns:
     	print intron;
+    print "Transcripts:";
+    transcriptsIds, transcripts = getTranscripts(exons, fasta, cpl);
+    for i in range(len(transcriptsIds)):
+    	print 'Transcript: ' + transcriptsIds[i];
+    	print transcripts[i];
 
 if __name__ == '__main__':
     demo()
