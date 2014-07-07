@@ -118,7 +118,11 @@ def reverseAndComplement(sequence):
 ##############################################################################
 # This method sorts the given annotation list by the begin value.            #
 ##############################################################################
-def sortByBegin():
+def sortByBegin(couples):
+	#couples[0] contains begin position
+	#couples[1] contains end position
+        sorted_couples = sorted(couples, key=lambda couples: couples[0])
+	return sorted_couples
 	
 ##############################################################################
 # This method returns the introns list, given the exons annotiations.        #
@@ -140,7 +144,7 @@ def demo():
     fastastring = getFastaString(1650, 2040, fasta, cpl)
     print 'fastastring:\n', fastastring
     print 'reverse and complement of fastastring:\n', reverseAndComplement(fastastring);
-
+    print sortByBegin(exons)
 
 if __name__ == '__main__':
     demo()
