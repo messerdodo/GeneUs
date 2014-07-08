@@ -88,20 +88,25 @@ def getFasta(path):
 ###############################################################################
 def getFastaString(begin, end, fasta, cpl):
     fastastring = ''
+    begin = begin - 1; #zero based
+    end = end - 1; #zero based
+
     #character position in the row is determined by its offset
     offset_begin = begin % cpl
     offset_end = end % cpl
     #calculates the row that containes the character
-    index_begin = (begin - (offset_begin))/cpl
-    index_end = (end - (offset_end))/cpl
+    index_begin = begin/cpl
+    index_end = end/cpl
     #temp vector of fasta
-    temp = fasta[index_begin:index_end]
+    temp = [];
+    if index_begin + 1 <= index_end - 1:
+    	temp = fasta[index_begin + 1 : index_end]
     #trims the offsets of the first and the last row
-    temp[0] = temp[0][offset_begin:]
-    temp[len(temp)-1] = temp[len(temp)-1][offset_end:]
+    fastastring = fasta[index_begin][offset_begin:].replace('\r', ''); 
     #updates fastastring
-    for i in range(0,len(temp)):
-        fastastring = fastastring + temp[i]
+    for i in range(len(temp)):
+        fastastring = fastastring + temp[i].replace('\r', '');
+    fastastring = fastastring + fasta[index_end][:(offset_end + 1)].replace('\r', '');
     return fastastring
 
 
