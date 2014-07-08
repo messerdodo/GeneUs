@@ -263,7 +263,6 @@ def fastaExport(ids, contents, cpl, directory = '.', fileName = 'file'):
         #no directory, so creates it
         os.makedirs(directory)
     path = directory + "/" + fileName + '.fa';
-    print "PATH " + path;
   	#Creates a new FASTA file.
     with open(path, 'w') as fasta:
  		for i in range(len(ids)):
@@ -301,19 +300,29 @@ def main(argv):
 			gtfFile = arg;
 		elif opt in ("-o", '--ofolder'):
 			outputFolder = arg;
+
+	print "GeneUs initializing...";
+
 	#Reads the input files
 	fasta, cpl = getFasta(fastaFile);
 	exons, cds = GTFParsing(gtfFile);
-	#Retrieves the introns and show them
+	#Retrieves the introns and stores them
 	introns = getIntrons(exons, fasta, cpl);
-	print 'Introns:'
-	for intron in introns:
-		print intron;
+	intronsHeaders = [];
+	intronsSeqs = [];
+	for i in range(len(introns)):
+		intronsHeaders = intronsHeaders + ['Intron {num}|Begin: {begin}|End: {end}'.format(num = i + 1, begin = introns[i][0], end = introns[i][1])]; 
+		intronsSeqs = intronsSeqs + [introns[i][2]];
+
+	print "Saving introns at " + outputFolder + "/introns.fa ...";
+	fastaExport(intronsHeaders, intronsSeqs, cpl, outputFolder, fileName = "introns");
+	print "Introns saved at " + outputFolder + "/introns.fa";
 
 	#Retrieves the transcripts and saves them
 	transcriptsIds, transcripts = getTranscripts(exons, fasta, cpl);
+	print "Saving transcripts at " + outputFolder + "/transcripts.fa ...";
 	fastaExport(transcriptsIds, transcripts, cpl, outputFolder, fileName = "transcripts");
-	print "Transcripts saved at " + outputFolder + "/transcripts";
+	print "Transcripts saved at " + outputFolder + "/transcripts.fa";
 
 	#Retrieves the cds and saves them
 	cdsSeqs = getCDS(cds, fasta, cpl);
@@ -321,9 +330,12 @@ def main(argv):
 	#Prepares the FASTA header
 	for i in range(len(cdsSeqs)):
 		cdsHeaders = cdsHeaders + ['CDS %d' %(i + 1)];
+	print "Saving coding sequences at " + outputFolder + "/CDS.fa ...";
 	fastaExport(cdsHeaders, cdsSeqs, cpl, outputFolder, fileName = "CDS");
-	print "Coding Sequences saved at " + outputFolder + "/CDS";
-	
+	print "Coding Sequences saved at " + outputFolder + "/CDS.fa";
+
+	print "Task completed!"
+
 
 if __name__ == '__main__':
 	main(sys.argv[1:]);
