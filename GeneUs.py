@@ -178,25 +178,25 @@ def getIntrons(exons, fasta, cpl):
 
 ###############################################################################
 ## This method returns a structure containing the trascripts id and their    ##
-## exons.                                                                    ##
+## annotations.                                                              ##
 ###############################################################################
-def getsExonsGrouppedByTranscriptId(exons):
+def getsAnnotationsGrouppedByTranscriptId(annotations):
 	transcriptIds = [];
-	grouppedExons = [];
+	grouppedAnnotations = [];
 	strands = [];
-	#Analizes all the exons and classifies them by the transcript id
-	for exon in exons:
+	#Analizes all the annotations and classifies them by the transcript id
+	for annotation in annotations:
 		#The transcript is already seen
-		if exon[3] in transcriptIds:
-			group = transcriptIds.index(exon[3]);
-			grouppedExons[group] = grouppedExons[group] + [(exon[0], exon[1])];
+		if annotation[3] in transcriptIds:
+			group = transcriptIds.index(annotation[3]);
+			grouppedAnnotations[group] = grouppedAnnotations[group] + [(annotation[0], annotation[1])];
 		else:
 			#New transcript id.
-			grouppedExons = grouppedExons + [[(exon[0], exon[1])]];
-			transcriptIds = transcriptIds + [exon[3]];
-			strands = strands + [exon[2]];
+			grouppedAnnotations = grouppedAnnotations + [[(annotation[0], annotation[1])]];
+			transcriptIds = transcriptIds + [annotation[3]];
+			strands = strands + [annotation[2]];
 
-	return transcriptIds, grouppedExons, strands;
+	return transcriptIds, grouppedAnnotations, strands;
 
 ###############################################################################
 ## This method returns a structures containing each transcript in a FASTA    ##
