@@ -6,6 +6,8 @@ import csv as tsv
 import string;
 import os
 import textwrap
+import sys;
+import getopt;
 
 ###############################################################################
 ## This method reads a GTF file and returns two structured object, one for   ##
@@ -19,7 +21,7 @@ def GTFParsing(gtfFile) :
 
 	#Exons containter
 	exons = [];#4
-	cds = []; #7
+	cds = []; #4
 
 	#Opens the GTF file
 	with open(gtfFile) as gtf:
@@ -236,54 +238,87 @@ def getTranscripts(annotations, fasta, cpl):
 		i = i + 1;
 	return transcriptsIds, transcripts;
 
+def getCDS(annotations, fasta, cpl):
+	cdsSequences = [];
+	for cds in annotations:
+		seq = getFastaString(cds[0], cds[1], fasta, cpl);
+		if cds[2] == '-':
+			seq = reverseAndComplement(seq);
+		cdsSequences = cdsSequences + [seq];
+	return cdsSequences;
+
 ###############################################################################
 # This method writes as many FASTA file as variable @ids                      #
 # Each file is filled with @contents[i] and stored in a directory named after #
 #  @directory. The width of each line is limited by @cpl.                     #
 ###############################################################################
-def fastaExport(ids, contents, cpl, directory = 'new directory'):
+def fastaExport(ids, contents, cpl, directory = '.', fileName = 'file'):
     #checks weather the directory already exists or not
     if not os.path.exists(directory):
         #no directory, so creates it
         os.makedirs(directory)
-    for i in range(0, len(ids)-1):
-        #for every id, creates a new FASTA file
-        current_id = ids[i]
-        file_name = directory + '/' + current_id + '.fa'
-        heading = '>' + current_id
-        with open(file_name, 'w') as fasta:
-            #writes head line of fasta
-            fasta.write(heading + '\n')
-            #wraps the text width
-            fasta.write(textwrap.fill(contents[i], width=cpl))
-    print 'saved files in directory \'', directory, '\'.'
+    path = directory + "/" + fileName + '.fa';
+    print "PATH " + path;
+  	#Creates a new FASTA file.
+    with open(path, 'w') as fasta:
+ 		for i in range(len(ids)):
+			#for every id, saves the trasncript in a fasta file
+			current_id = ids[i]
+			heading = '>' + current_id
+			#writes head line of fasta
+			fasta.write(heading + '\n')
+			fasta.flush();
+			#wraps the text width
+			fasta.write(textwrap.fill(contents[i], width = cpl));
+			fasta.flush();
+			fasta.write('\n');
+			fasta.flush();
     return
 
-def demo():
-    print 'Initializing GeneUs...'
-    fasta, cpl = getFasta('ENm006.fa')
-    exons, cds = GTFParsing('GAB3_annot.gtf');
-    print '\nexons:\n'
-    for exon in exons:
-        print exons
-    print '\ncds:\n', cds;
-    #tests
-    #fastastring = getFastaString(1650, 2040, fasta, cpl)
-    #print fastastring
-    #rec_fastastring = reverseAndComplement(fastastring)
-    #print rec_fastastring
-    #print sortByBegin(exons)
-    #print sortByBegin(exons, False)
-    introns = getIntrons(exons, fasta, cpl);
-    print '\nIntrons:'
-    for intron in introns:
-    	print intron;
-    print "Transcripts:";
-    transcriptsIds, transcripts = getTranscripts(exons, fasta, cpl);
-    for i in range(len(transcriptsIds)):
-    	print 'Transcript: ' + transcriptsIds[i];
-    	print transcripts[i];
-    fastaExport(transcriptsIds, transcripts, cpl, 'transcripts')
+def main(argv):
+	fastaFile = '';
+	gtfFile = '';
+	outputFolder = '';
+	try:
+		opts, args = getopt.getopt(argv, 'f:g:o:h', ['fasta=', 'gtf=', 'ofolder=', 'help'])
+	except getopt.GetoptError:
+		print 'GeneUs.py -f <fastafile> -g <gtffile> -o <outputfolder>';
+		sys.exit(2);
+
+	
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'GeneUs.py -f <fastafile> -g <gtffile> -o <outputfolder>';
+			sys.exit()
+		elif opt in ("-f", "--fasta"):
+			fastaFile = arg;
+		elif opt in ("-g", "--gtf"):
+			gtfFile = arg;
+		elif opt in ("-o", '--ofolder'):
+			outputFolder = arg;
+	#Reads the input files
+	fasta, cpl = getFasta(fastaFile);
+	exons, cds = GTFParsing(gtfFile);
+	#Retrieves the introns and show them
+	introns = getIntrons(exons, fasta, cpl);
+	print 'Introns:'
+	for intron in introns:
+		print intron;
+
+	#Retrieves the transcripts and saves them
+	transcriptsIds, transcripts = getTranscripts(exons, fasta, cpl);
+	fastaExport(transcriptsIds, transcripts, cpl, outputFolder, fileName = "transcripts");
+	print "Transcripts saved at " + outputFolder + "/transcripts";
+
+	#Retrieves the cds and saves them
+	cdsSeqs = getCDS(cds, fasta, cpl);
+	cdsHeaders = [];
+	#Prepares the FASTA header
+	for i in range(len(cdsSeqs)):
+		cdsHeaders = cdsHeaders + ['CDS %d' %(i + 1)];
+	fastaExport(cdsHeaders, cdsSeqs, cpl, outputFolder, fileName = "CDS");
+	print "Coding Sequences saved at " + outputFolder + "/CDS";
+	
 
 if __name__ == '__main__':
-    demo()
+	main(sys.argv[1:]);
