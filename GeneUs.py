@@ -58,9 +58,9 @@ def GTFParsing(gtfFile) :
 
 
 ###############################################################################
-# This method returns an array of lines of a FASTA file                       #
-# Variable @cpl is the number of characters per line of the fasta file. It is #
-#  assumed that this value is unique for all the FASTA file                   #
+## This method returns an array of lines of a FASTA file                     ##
+## Variable @cpl is the number of characters per line of the fasta file. It  ##
+##  is assumed that this value is unique for all the FASTA file              ##
 ###############################################################################
 def getFasta(path):
     #opens file
@@ -76,12 +76,14 @@ def getFasta(path):
     cpl = len(fasta[1])
     return fasta, cpl
 
-##############################################################################
-# This method returns a substring of FASTA                                   #
-# Variable @fasta is used as a matrix (lines, character offset)              #
-# Variable @cpl (characters per line) is the number of nucleic bases on a    #
-#  single line of FASTA file                                                 #
-##############################################################################
+###############################################################################
+## This method returns a substring of the given FASTA file (variables @fasta ##
+##  and @cpl). Length of the substring is given by variables @begin and @end ##
+## Variable @fasta is used as a matrix (lines, character offset)             ##
+## Variable @cpl (characters per line) is the number of nucleic bases on a   ##
+##  single line of FASTA file                                                ##
+## The substring is stored in the output variable @fastastring.              ##
+###############################################################################
 def getFastaString(begin, end, fasta, cpl):
     fastastring = ''
     #character position in the row is determined by its offset
@@ -125,11 +127,13 @@ def reverseAndComplement(sequence):
 		newSequence = newSequence + complements(sequence[lenght - 1 - i]);
 	return newSequence;
 
-##############################################################################
-# This method sorts the given annotation list by the begin value.            #
-# Variable @increasing is set to True (default value) if increasing sort     #
-#  is needed; it can be set to False if decreasing sort is needed.           #
-##############################################################################
+###############################################################################
+## This method sorts the given annotations list by the begin value.          ##
+## The input variable @couples is a list of couples (begin, end).            ##
+## Variable @increasing is set to True (default value) if increasing sort    ##
+##  is needed; it can be set to False if decreasing sort is needed.          ##
+## Sorted annotations are stored in the output variable @sorted_couples.     ##
+###############################################################################
 def sortByBegin(couples, increasing = True ):
 	#couples[0] contains begin position
 	#couples[1] contains end position
@@ -141,9 +145,12 @@ def sortByBegin(couples, increasing = True ):
 	    sorted_couples = sorted(couples, key=lambda couples: couples[0], reverse = True)
 	return sorted_couples
 	
-##############################################################################
-# This method returns the introns list, given the exons annotiations.        #
-##############################################################################
+###############################################################################
+## This method returns the introns list, given the exons annotiations.       ##
+## The introns and the exons are taken from the given fasta file (variables  ##
+##  @fasta and @cpl).                                                        ##
+## The introns list is stored in the output variable @introns                ##
+###############################################################################
 def getIntrons(exons, fasta, cpl):
 	introns = [];
 	#Sorts the exons by the begin attribute.
@@ -200,31 +207,31 @@ def getsAnnotationsGrouppedByTranscriptId(annotations):
 
 ###############################################################################
 ## This method returns all the transcripts relative to the given annotations ##
-##  (variable @annots). The transcripts identifiers are stored in the output ##
-##  variable @transcriptsIds, while the transcripts' nucleic bases are       ##
+##  (variable @annotations). The transcripts identifiers are stored in the   ##
+##  output variable @transcriptsIds. The the transcripts' nucleic bases are  ##
 ##  stored in the output variable @transcripts.                              ##
 ## Transcripts are taken from the given genomic (variables @fasta and @cpl). ##
 ###############################################################################
-def getTranscripts(annots, fasta, cpl):
-	transcriptsIds, grouppedAnnots, strands = getsAnnotationsGrouppedByTranscriptId(annots);
+def getTranscripts(annotations, fasta, cpl):
+	transcriptsIds, grouppedannotations, strands = getsAnnotationsGrouppedByTranscriptId(annotations);
 	i = 0;
 	transcripts = [];
 	#Analizes each transcipt
-	for annotsInTranscript in grouppedAnnots:
+	for annotationsInTranscript in grouppedannotations:
 		transcript = '';
 		#Crick strand: A reverse and complement task is required
 		if strands[i] == '-':
 			#Reverse way.
-			annotsInTranscript = sortByBegin(annotsInTranscript, increasing = False);
+			annotationsInTranscript = sortByBegin(annotationsInTranscript, increasing = False);
 			#Gets the sequence for each exon and do the reverse and complement task
-			for annot in annotsInTranscript:
-				transcript = transcript + reverseAndComplement(getFastaString(annot[0], annot[1], fasta, cpl));	
+			for annotation in annotationsInTranscript:
+				transcript = transcript + reverseAndComplement(getFastaString(annotation[0], annotation[1], fasta, cpl));	
 		else: #Watson strand
 			#Standard way.
-			annotsInTranscript = sortByBegin(annotsInTranscript);
+			annotationsInTranscript = sortByBegin(annotationsInTranscript);
 			#Gets the sequence for each exon and produces the transcript sequence.
-			for annot in annotsInTranscript:
-				transcript = transcript + getFastaString(annot[0], annot[1], fasta, cpl);
+			for annotation in annotationsInTranscript:
+				transcript = transcript + getFastaString(annotation[0], annotation[1], fasta, cpl);
 		transcripts = transcripts + [transcript];
 		i = i + 1;
 	return transcriptsIds, transcripts;
@@ -253,10 +260,13 @@ def fastaExport(ids, contents, cpl, directory = 'new directory'):
     return
 
 def demo():
+    print 'Initializing GeneUs...'
     fasta, cpl = getFasta('ENm006.fa')
     exons, cds = GTFParsing('GAB3_annot.gtf');
-    print 'exons:\n', exons;
-    print 'cds:\n', cds;
+    print '\nexons:\n'
+    for exon in exons:
+        print exons
+    print '\ncds:\n', cds;
     #tests
     #fastastring = getFastaString(1650, 2040, fasta, cpl)
     #print fastastring
@@ -265,7 +275,7 @@ def demo():
     #print sortByBegin(exons)
     #print sortByBegin(exons, False)
     introns = getIntrons(exons, fasta, cpl);
-    print 'Introns:'
+    print '\nIntrons:'
     for intron in introns:
     	print intron;
     print "Transcripts:";
