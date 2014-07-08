@@ -199,29 +199,32 @@ def getsAnnotationsGrouppedByTranscriptId(annotations):
 	return transcriptIds, grouppedAnnotations, strands;
 
 ###############################################################################
-## This method returns a structures containing each transcript in a FASTA    ##
-## format.                                                                   ##
+## This method returns all the transcripts relative to the given annotations ##
+##  (variable @annots). The transcripts identifiers are stored in the output ##
+##  variable @transcriptsIds, while the transcripts' nucleic bases are       ##
+##  stored in the output variable @transcripts.                              ##
+## Transcripts are taken from the given genomic (variables @fasta and @cpl). ##
 ###############################################################################
-def getTranscripts(exons, fasta, cpl):
-	transcriptsIds, grouppedExons, strands = getsExonsGrouppedByTranscriptId(exons);
+def getTranscripts(annots, fasta, cpl):
+	transcriptsIds, grouppedAnnots, strands = getsAnnotationsGrouppedByTranscriptId(annots);
 	i = 0;
 	transcripts = [];
 	#Analizes each transcipt
-	for exonsInTranscript in grouppedExons:
+	for annotsInTranscript in grouppedAnnots:
 		transcript = '';
 		#Crick strand: A reverse and complement task is required
 		if strands[i] == '-':
 			#Reverse way.
-			exonsInTranscript = sortByBegin(exonsInTranscript, increasing = False);
+			annotsInTranscript = sortByBegin(annotsInTranscript, increasing = False);
 			#Gets the sequence for each exon and do the reverse and complement task
-			for exon in exonsInTranscript:
-				transcript = transcript + reverseAndComplement(getFastaString(exon[0], exon[1], fasta, cpl));	
+			for annot in annotsInTranscript:
+				transcript = transcript + reverseAndComplement(getFastaString(annot[0], annot[1], fasta, cpl));	
 		else: #Watson strand
 			#Standard way.
-			exonsInTranscript = sortByBegin(exonsInTranscript);
+			annotsInTranscript = sortByBegin(annotsInTranscript);
 			#Gets the sequence for each exon and produces the transcript sequence.
-			for exon in exonsInTranscript:
-				transcript = transcript + getFastaString(exon[0], exon[1], fasta, cpl);
+			for annot in annotsInTranscript:
+				transcript = transcript + getFastaString(annot[0], annot[1], fasta, cpl);
 		transcripts = transcripts + [transcript];
 		i = i + 1;
 	return transcriptsIds, transcripts;
