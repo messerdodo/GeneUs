@@ -248,14 +248,33 @@ def getTranscripts(annotations, fasta, cpl):
 		i = i + 1;
 	return transcriptsIds, transcripts;
 
+###############################################################################
+## This method returns all the Coding Sequences connected to the given       ##
+## annotations (variable @annotations).                                      ##
+## CDSs are taken from the given genomic (variables @fasta and @cpl).        ##
+###############################################################################
 def getCDS(annotations, fasta, cpl):
+	transcriptsIds, grouppedAnnotations , strands = getsAnnotationsGrouppedByTranscriptId(annotations);
 	cdsSequences = [];
-	for cds in annotations:
-		seq = getFastaString(cds[0], cds[1], fasta, cpl);
-		if cds[2] == '-':
-			seq = reverseAndComplement(seq);
-		cdsSequences = cdsSequences + [seq];
-	return cdsSequences;
+	i = 0;
+	for annotationsInTranscript in grouppedAnnotations :
+		singleCDS = '';
+		#Crick strand: A reverse and complement task is required
+		if strands[i] == '-':
+			#Reverse way.
+			annotationsInTranscript = sortByBegin(annotationsInTranscript, increasing = False);
+			#Gets the sequence for each exon and do the reverse and complement task
+			for annotation in annotationsInTranscript:
+				singleCDS = singleCDS + reverseAndComplement(getFastaString(annotation[0], annotation[1], fasta, cpl));
+		else: #Watson strand
+			#Standard way.
+			annotationsInTranscript = sortByBegin(annotationsInTranscript);
+			#Gets the sequence for each exon and produces the transcript sequence.
+			for annotation in annotationsInTranscript:
+				singleCDS = singleCDS + getFastaString(annotation[0], annotation[1], fasta, cpl);
+		cdsSequences = cdsSequences + [singleCDS];
+		i = i + 1;
+	return cdsSequences, transcriptsIds;
 
 ###############################################################################
 # This method writes as many FASTA file as variable @ids                      #
@@ -330,11 +349,11 @@ def main(argv):
 	print "Transcripts saved at " + outputFolder + "/transcripts.fa";
 
 	#Retrieves the cds and saves them
-	cdsSeqs = getCDS(cds, fasta, cpl);
+	cdsSeqs, transcriptsIds = getCDS(cds, fasta, cpl);
 	cdsHeaders = [];
 	#Prepares the FASTA header
 	for i in range(len(cdsSeqs)):
-		cdsHeaders = cdsHeaders + ['CDS %d' %(i + 1)];
+		cdsHeaders = cdsHeaders + ['CDS %d' %(i + 1) + "|Transcript id: " + transcriptsIds[i]];
 	print "Saving coding sequences at " + outputFolder + "/CDS.fa ...";
 	fastaExport(cdsHeaders, cdsSeqs, cpl, outputFolder, fileName = "CDS");
 	print "Coding Sequences saved at " + outputFolder + "/CDS.fa";
