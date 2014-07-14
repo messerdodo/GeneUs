@@ -74,6 +74,7 @@ def getFasta(path):
     #removes '\n'
     for i in range(len(fasta)):
         fasta[i] = fasta[i].replace('\n', '')
+        fasta[i] = fasta[i].replace('\r', '')
     #characters per line
     cpl = len(fasta[1])
     return fasta, cpl
@@ -97,16 +98,20 @@ def getFastaString(begin, end, fasta, cpl):
     #calculates the row that containes the character
     index_begin = begin/cpl
     index_end = end/cpl
-    #temp vector of fasta
-    temp = [];
-    if index_begin + 1 <= index_end - 1:
-    	temp = fasta[index_begin + 1 : index_end]
-    #trims the offsets of the first and the last row
-    fastastring = fasta[index_begin][offset_begin:].replace('\r', ''); 
-    #updates fastastring
-    for i in range(len(temp)):
-        fastastring = fastastring + temp[i].replace('\r', '');
-    fastastring = fastastring + fasta[index_end][:(offset_end + 1)].replace('\r', '');
+    #Begin and end in the same row.
+    if index_begin == index_end :
+    	fastastring = fasta[index_begin][offset_begin : offset_end + 1];
+    else:
+		#temp vector of fasta
+    	temp = [];
+    	if index_begin + 1 <= index_end - 1:
+    		temp = fasta[index_begin + 1 : index_end]
+    	#trims the offsets of the first and the last row
+    	fastastring = fasta[index_begin][offset_begin:]; 
+    	#updates fastastring
+    	for i in range(len(temp)):
+        	fastastring = fastastring + temp[i];
+    	fastastring = fastastring + fasta[index_end][:(offset_end + 1)];
     return fastastring
 
 
